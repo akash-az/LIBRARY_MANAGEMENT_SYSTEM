@@ -1,0 +1,122 @@
+npm init -y -> initialize node package manager and yes to all the parametres
+
+ npm i express ejs express-ejs-layouts -> express -> express server/ejs language / express-ejs-layouts -> for css layouts
+
+ npm i --save-dev nodemon -> save nodemon as a dev dependency 
+
+ output : in package.json -> 
+ 
+ "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+
+   "scripts": {
+    "start" : "node server.js"   -> start our server.js on developement environment without nodemon
+     "devStart" : "nodemon server.js" -> start our server using nodemon, automatically refresh our server on changes
+  },
+
+
+//for setting up server server.js
+
+const express = require('express') //import express form express library
+const app = express()
+const expressLayouts = require('express-ejs-layouts')
+
+//configuration of our express application
+
+app.set('view-engine','ejs')  //set up view engine and using ejs as view engine
+app.set('views',__dirname + '/views') // this is where are views are going to be coming from ,
+                                      //   we are going to put them in views directory so we want to get current directory name.this is where all the views of our server be
+app.set('layouts','layouts/layout')               // idea behind layout file is that every single file will be put inside of this layout file
+                                                  // so we dont have to write beggining and ending parts of our html file, such as headers/footes
+
+app.use(expressLayouts)                           // tell our express application that we want to use express Layouts ->pass expressLaout variable that we included from the library                                   
+
+app.use(express.static('public'))                                            // tell express where are public files are going to be, files like stylesheets , js , images / public name is commonly used for reference
+
+app.listen(process.env.PORT || 3000)                                                                 // tell that we want to listen on a certain port and pass (process.env.PORT) which is going to pull from an environment variable ,
+                                                                             // and server is going to tell the port number on which it is listening  and for developement purpose (|| 3000) , bcus our server is not telling us anything for our hosting platform
+
+                                                      
+
+                                                                                                          //this is all we need to get our server up and running
+
+                                                                             //after setting up server run command npm run devStart goto -> localhost:3000 // output cannot GET/ bcus we havent set up any routes.
+                                                                              // for routes we should should using mvc architecture and not put all our routes in one single server.js file instead we create multiple routes or controllers in routes folder.
+
+
+                    views  -> Layouts -> layout.js ->
+
+
+ <%--// this is where we setup our default layout so we dont have to write boiler html code again and again 
+ // for syntax highlighting download extension ejs language support --%>
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library management system </title>
+</head>
+<body>
+    Before 
+    <br>                                          
+    <%- body %>                                      <%--  //going to put the content of everything in our application
+                                                       // includes every page of our application in this body page --%>  
+     <br>
+    After 
+</body>
+</html>
+
+                                     ## After this layout setup => 
+create index.ejs in views folder and > in index.js -> res.render('index')
+
+
+                                 ##After this we integrate mongoDb database with our application.
+* In server.js file 
+
+if (process.env.NODE_ENV !== 'production'){        // here after setting up database url in .env file we just tell our
+                                                   //  application to load in into our application also 
+                                                   //perform check to check if we arre runningin our production environment or not, set to default by node , 
+                                                   //to make sure to load only when we are in devlopement environment and not in production
+    require('dotenv').config()                       // if above condition false then load .env database url and load in process.env.DATABASE_URL
+}
+
+const mongoose = require('mongoose')                                // import mongoose from mongoose library -> mongoose is library for easy integration of mongodb database with our application
+mongoose.connect(process.env.DATABASE_URL)                                                  //set yp connectoin to database (we could have just passed the url in our database ), but bcus we dont want to hardcode it but instead make it dependent on the environment 
+                                                                    // but when our application is deployed we want it to be connected to our web somewhere.
+                                                                    // so to setup database connection url dynamically we will pass a string(process.env.DATABASE_URL)for the url which will come from our environment 
+                                                                    // and next parameter "only required for old maongoDB version" {}  is for providing an option of how we are going to set up mogoDB in our environment   
+const db = mongoose.connection                                       // to log if we are or not connected to our database
+db.on('error', error => console.error(error))                       // to log error on console when database is not connected properly
+db.once('open', () => console.log("connected to mongoose"))          // to run only once and log if connected to mongoose
+                                                                // if we run our app now, it will show error bcus our app does not have this variable (process.env.DATABASE_URL) for our database 
+                                                                    // to resolve this we will install "dotenv" library which will allow us to load environment variable into our app
+                                                                    // code for above -> terminal -> npm i --save-dev dotenv  since we only want it tobe locally that we want to use it.
+
+* In .env file ->      
+
+DATABASE_URL = mongodb://localhost/LIBRARY_MANAGEMENT_SYSTEM
+
+
+
+
+
+
+//this error showed bcause i used DTABASE instead of database and used spaces in database name.  {
+
+MongooseError: The `uri` parameter to `openUri()` must be a string, got "undefined". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.
+    at NativeConnection.createClient (C:\Users\91760\Desktop\Web Applications\WEBDEVSImplifies\Library Management System\node_modules\mongoose\lib\drivers\node-mongodb-native\connection.js:225:11)
+    at NativeConnection.openUri (C:\Users\91760\Desktop\Web Applications\WEBDEVSImplifies\Library Management System\node_modules\mongoose\lib\connection.js:835:34)
+    at Mongoose.connect (C:\Users\91760\Desktop\Web Applications\WEBDEVSImplifies\Library Management System\node_modules\mongoose\lib\mongoose.js:447:15)
+    at Object.<anonymous> (C:\Users\91760\Desktop\Web Applications\WEBDEVSImplifies\Library Management System\server.js:29:10)
+
+                                                                                                  }
+                                   ## After we push the code to github
+  git init 
+  create .gitignore file -> to exclude all the files that we do not wish to upload  or files like .env that could contain sensitive information.
+  all the files in .gitignore will be highlighted in grey colour. 
+
+                                                                                 
+                                                                                 
+                                                                        
